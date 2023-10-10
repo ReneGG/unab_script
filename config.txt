@@ -1,0 +1,15 @@
+host="localhost"
+#conexión base de datos sgr
+database_sgr = "--" 
+user_sgr = "--" 
+password_sgr = "--" 
+
+#conexión base de datos sgt
+database_sgt = "--" 
+user_sgt = "--" 
+password_sgt = "--" 
+
+#conexión base de datos scc
+database_scc = "--" 
+user_scc = "--" 
+password_scc = "--" 
