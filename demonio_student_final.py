@@ -75,10 +75,10 @@ def add_profile_student(user_id):
     except:
         return -1
 
-def add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now):
+def add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now,regime):
     try:
         student_save = conexion_scc.cursor()
-        student_save.execute("INSERT INTO student_student(user_id,group_id,profesion_id,student_rut,student_first_name,student_last_name,student_mail1,student_mail2,student_mail3,student_mail4,student_fono1,student_fono2,student_fono3,student_gender,student_sede,student_kind,student_level,student_period,student_path_image,student_city,student_commune,student_state,student_credential_state,created,updated) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(user_id,3,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now,now))
+        student_save.execute("INSERT INTO student_student(user_id,group_id,profesion_id,student_rut,student_first_name,student_last_name,student_mail1,student_mail2,student_mail3,student_mail4,student_fono1,student_fono2,student_fono3,student_gender,student_sede,student_kind,student_level,student_period,student_path_image,student_city,student_commune,student_state,student_credential_state,created,updated,student_regime) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(user_id,3,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now,now,regime))
         conexion_scc.commit()  
     except:
         return -1
@@ -135,9 +135,14 @@ while row_base_estudiante is not None:
         estudiante_sede = 'REGIÓN DE VALPARAÍSO'
     if estudiante_sede_origin == 'CONCEPCIÓN':
         estudiante_sede = 'REGIÓN DEL BIOBÍO'
+    #define el regimen
+    regime = 'Sin datos'
+    if 'UNAB1' in estudiante_codigo_carrera:
+        regime = 'Diurno'
+    else:
+        regime = 'Vespertino'
 
-
-
+    #print(regime)
     estudiante_tipo = row_base_estudiante[16]
     #print(estudiante_periodo_ingreso)
     '''
@@ -233,7 +238,7 @@ while row_base_estudiante is not None:
                 if user_id != -1:
                     result_add_profile_student = add_profile_student(user_id)
                     if result_add_profile_student != -1:
-                        result_add_student = add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now)
+                        result_add_student = add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now,regime)
                         if result_add_student == -1:
                             non_created_student += 1
                     else:
@@ -247,7 +252,7 @@ while row_base_estudiante is not None:
         if scc_estudiante_count_conv <= 0 and scc_estudiante_user_count_conv >0:                
             user_id = consulta_id(estudiante_rut_format)#obtengo el user id
             if user_id != -1:
-                result_add_student = add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now)
+                result_add_student = add_student(user_id,estudiante_carrera_id,estudiante_rut_format,estudiante_nombre,estudiante_apellido,estudiante_mail1,estudiante_mail2,estudiante_mail3,estudiante_mail4,estudiante_phone1,estudiante_phone2,estudiante_phone3,estudiante_genero,estudiante_sede,estudiante_tipo,estudiante_nivel,estudiante_periodo_ingreso,student_path_image,estudiante_region,estudiante_comuna,estudiante_estado,student_credential_state,now,regime)
                 if result_add_student == -1:
                     non_created_student += 1
             else:
