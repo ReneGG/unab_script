@@ -13,3 +13,20 @@ password_sgt = "--"
 database_scc = "--" 
 user_scc = "--" 
 password_scc = "--" 
+
+#Credenciales correo
+EMAIL_HOST = ''
+EMAIL_PORT = 
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = True
+
+#Parametros empresas de transporte SGR
+#yanguas
+param_yanguas =  
+token_yanguas = '' #key acceso yanguas
+#Perez lillo
+param_perez_lillo = 
+token_perez_lillo = ''
+username_perez_lillo = ''
+pass_perez_lillo =  ''
