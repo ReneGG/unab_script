@@ -19,7 +19,7 @@ base_schedule = conexion_sgr.cursor()
 
 #Inicia reservas
 records_update_init = conexion_sgr.cursor()
-records_update_init.execute("UPDATE schedule_schedule SET state = 'Iniciada' WHERE reservation_init = %s and state = 'Aceptada'",(now_str,))
+records_update_init.execute("UPDATE schedule_schedule SET state = 'Iniciada' WHERE reservation_init <= %s and state = 'Aceptada'",(now_str,))
 #Finaliza reservas
 records_update_final = conexion_sgr.cursor()
 records_update_final.execute("UPDATE schedule_schedule SET state = 'Finalizada' WHERE reservation_fin < %s",(now_str,))
