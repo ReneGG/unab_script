@@ -1,22 +1,16 @@
-
 import calendar
 import json
 from datetime import date, datetime, time, timedelta
 from math import asin, cos, radians, sin, sqrt
-
 import psycopg2
 import requests
-
 import config
-
 #confuguramos id de empresa
 param_cia = config.param_perez_lillo
 token = config.token_perez_lillo
 username = config.username_perez_lillo
 password = config.pass_perez_lillo
-
 #definimos fecha y hora a consultar
-
 date_format = "%Y-%m-%d %H:%M:%S.0"
 time_format = "%H:%M:%S"
 now = datetime.today() - timedelta(seconds=60)
@@ -24,26 +18,48 @@ now_save = now
 since_time = now.strftime(time_format) 
 now = datetime.today().date() 
 since_date = now.strftime(date_format) 
-
 #Fin definimos fecha y hora a consultar
+#consume servicio empresa de GPS
+#Obtenermos token
+url_token = "http://18.229.217.73/webservice?token=generateAccessToken"
+payload_token = {
+    "username": "gabrielperezlillo@gmail.com",
+    "password": "123456789"
+}
+headers_token = {
+    "Content-Type": "application/json"
+}
+response = requests.post(url_token, json=payload_token, headers=headers_token)
+data_decode_token = response.content.decode('ISO-8859-1')
+data_token = json.loads(data_decode_token)
+token = data_token["data"]["token"]
+#fin #Obtenermos el token
+#Obtenemos lista de vehículos (Patente, latitud y longitud)
+url_vehicle = f"http://18.229.217.73/webservice?token=getTokenBaseLiveData&ProjectId=49"
+payload = {
+    "company_names": "TRANSPORTES PEREZ",
+}
+headers = {
+    "Content-Type": "application/json",
+    "auth-code": token
+}
+response = requests.post(url_vehicle, json=payload, headers=headers)
+data_decode = response.content.decode("ISO-8859-1")
+data_util = json.loads(data_decode) 
+vehicles = data_util["root"]["VehicleData"]     
+only_data_util = []
+for v in vehicles:
+    only_data_util.append({
+        "Vehicle_No": v.get("Vehicle_No"),
+        "Latitude": v.get("Latitude"),
+        "Longitude": v.get("Longitude"),
+    })
+#Fin obtenemos lista de vehículos (Patente, latitud y longitud)
+#Fin consume servicio empresa de GPS
 conexion = psycopg2.connect(host=config.host,database=config.database_sgt,user=config.user_sgt,password=config.password_sgt)
 transport = conexion.cursor()
 transport.execute("SELECT date,departure,state,company_id,travels_id,vehicle_id,patent,driver_id,latitude,length,next_geo_register,id,state FROM transport_transport WHERE date = 'now' AND company_id = %s AND (state='Viaje no iniciado' OR state='En viaje')",(param_cia,))
 #Recorremos los resultados y los mostramos
-#test endpoint
-
-#patent = 'JRKP65' #cambiar
-#url = 'http://192.168.0.1/webservice?token='+token+'&user='+username+'&pass='+password+'&vehicle_no='+patent+'&format=json'
-#url = 'http://18.229.217.73/webservice?token='+token+'&user='+username+'&pass='+password+'&vehicle_no='+patent+'&format=json'
-#response = requests.post(url)
-#print(response)
-#if response.status_code == 200:
-#    data_decode = response.content.decode('ISO-8859-1')
-#    data = json.loads(data_decode)
-#    longitude = data['root']['VehicleData'][0]['Longitude']
-#    Latitude = data['root']['VehicleData'][0]['Latitude']
-#fin test endpoint
-
 row = transport.fetchone()
 while row is not None:
     process = 0
@@ -65,14 +81,11 @@ while row is not None:
         while row_v is not None:
             patent = str(row_v[0])
             row_v = vehicle.fetchone()
-        #url = 'http://192.168.0.1/webservice?token='+token+'&user='+username+'&pass='+password+'&vehicle_no='+patent+'&format=json'
-        url = 'http://18.229.217.73/webservice?token='+token+'&user='+username+'&pass='+password+'&vehicle_no='+patent+'&format=json'
-        response = requests.post(url)
-        if response.status_code == 200:
-            data_decode = response.content.decode('ISO-8859-1')
-            data = json.loads(data_decode)
-            length = data['root']['VehicleData'][0]['Longitude']
-            latitude = data['root']['VehicleData'][0]['Latitude']   
+
+        veh = next((v for v in only_data_util if v["Vehicle_No"] == patent), None)
+        if veh:
+            latitude = veh["Latitude"]
+            length = veh["Longitude"]
             gps_save = conexion.cursor()
             gps_save.execute("INSERT INTO trip_gps(latitude,length,created,updated,company_id,driver_id,travels_id,vehicle_id,state) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)",(latitude,length,now_save,now_save,param_cia,driver_id,travels_id,vehicle_id,row[12]))
             conexion.commit()
@@ -91,9 +104,5 @@ while row is not None:
                 transport_update.execute("UPDATE transport_transport SET next_geo_register = %s, next_geo_time = %s, next_geo_difference = %s WHERE id = %s",('Si',since_time,km,row[11]))
                 conexion.commit()
             #Fin geocerca        
-        else:
-            print('Hubo un error')
     row = transport.fetchone()
 conexion.close()
-
-
