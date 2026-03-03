@@ -84,8 +84,8 @@ while row is not None:
 
         veh = next((v for v in only_data_util if v["Vehicle_No"] == patent), None)
         if veh:
-            latitude = veh["Latitude"]
-            length = veh["Longitude"]
+            latitude = float(veh["Latitude"])
+            length = float(veh["Longitude"])
             print(latitude)
             print(type(latitude))
             gps_save = conexion.cursor()
