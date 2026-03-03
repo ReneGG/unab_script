@@ -86,8 +86,6 @@ while row is not None:
         if veh:
             latitude = float(veh["Latitude"])
             length = float(veh["Longitude"])
-            print(latitude)
-            print(type(latitude))
             gps_save = conexion.cursor()
             gps_save.execute("INSERT INTO trip_gps(latitude,length,created,updated,company_id,driver_id,travels_id,vehicle_id,state) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)",(latitude,length,now_save,now_save,param_cia,driver_id,travels_id,vehicle_id,row[12]))
             conexion.commit()
